@@ -1,6 +1,6 @@
-import numpy as np
+# import numpy as np
 from scipy.linalg import circulant
-
+import jax.numpy as np
 
 def to_conv_mat(permittivities, fourier_order):
     # FFT scaling
@@ -9,7 +9,7 @@ def to_conv_mat(permittivities, fourier_order):
 
     # TODO: check whether 1D case is correct or not. I think I actually didn't test it at all.
     if len(permittivities[0].shape) == 1:  # 1D
-        res = np.ndarray((len(permittivities), 2*fourier_order+1, 2*fourier_order+1)).astype('complex')
+        res = np.zeros((len(permittivities), 2*fourier_order+1, 2*fourier_order+1)).astype('complex')
 
         for i, pmtvy in enumerate(permittivities):
             pmtvy_fft = np.fft.fftn(pmtvy / pmtvy.size)
@@ -18,11 +18,11 @@ def to_conv_mat(permittivities, fourier_order):
             center = len(pmtvy_fft) // 2
             pmtvy_fft_cut = (pmtvy_fft[-ff + center: center+ff+1])
             A = np.roll(circulant(pmtvy_fft_cut.flatten()), (pmtvy_fft_cut.size + 1) // 2, 0)
-            res[i] = A[:2*fourier_order+1, :2*fourier_order+1]
+            res = res.at[i].set(A[:2*fourier_order+1, :2*fourier_order+1])
             # res[i] = circulant(pmtvy_fft_cut)
 
     else:  # 2D
-        res = np.ndarray((len(permittivities), ff ** 2, ff ** 2)).astype('complex')
+        res = np.zeros((len(permittivities), ff ** 2, ff ** 2)).astype('complex')
 
         for i, pmtvy in enumerate(permittivities):
             pmtvy_fft = np.fft.fftn(pmtvy / pmtvy.size)
@@ -58,21 +58,27 @@ def to_conv_mat(permittivities, fourier_order):
     # plt.imshow(abs(res[0]), cmap='jet')
     # plt.colorbar()
     # plt.show()
-    #
-    # return res
+
+    return res
 
 
 def draw_1d(patterns, resolution=1001):
     # fill_factor is not exactly implemented.
-    res = np.ndarray((len(patterns), resolution))
+
+    res = np.zeros((len(patterns), resolution))
 
     for i, (n_ridge, n_groove, fill_factor) in enumerate(patterns):
 
         permittivity = np.ones(resolution)
         cut = int(resolution * fill_factor)
-        permittivity[:cut] *= n_ridge ** 2
-        permittivity[cut:] *= n_groove ** 2
-        res[i] = permittivity
+
+        # permittivity[:cut] *= n_ridge ** 2
+        # permittivity[cut:] *= n_groove ** 2
+        # res[i] = permittivity
+
+        permittivity = permittivity.at[:cut].set(n_ridge ** 2)
+        permittivity = permittivity.at[cut:].set(n_groove ** 2)
+        res = res.at[i].set(permittivity)
 
     return res
 

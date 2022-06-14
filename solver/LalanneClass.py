@@ -3,9 +3,10 @@ import copy
 import matplotlib.pyplot as plt
 from solver.convolution_matrix import *
 
+import jax.numpy as np
 
 class LalanneBase:
-    def __init__(self, grating_type, n_I=1, n_II=1, theta=0, phi=0, psi=0, fourier_order=10,
+    def __init__(self, grating_type, n_I=1, n_II=1, theta=0, phi=0, psi=0, fourier_order=1,
                  period=0.7, wls=np.linspace(0.5, 2.3, 400), polarization=0,
                  patterns=None, thickness=None):
 
@@ -30,8 +31,8 @@ class LalanneBase:
         self.patterns = [['SILICON', 1, 0.3]] if patterns is None else patterns
         self.thickness = [0.46] if thickness is None else thickness
 
-        self.spectrum_r = []
-        self.spectrum_t = []
+        self.spectrum_r = np.zeros(len(wls))
+        self.spectrum_t = np.zeros(len(wls))
 
     def permittivity_mapping(self, wl, oneover=False):
 
@@ -61,9 +62,10 @@ class LalanneBase:
         fourier_indices = np.arange(-self.fourier_order, self.fourier_order + 1)
 
         delta_i0 = np.zeros(2 * self.fourier_order + 1)
-        delta_i0[self.fourier_order] = 1
+        # delta_i0[self.fourier_order] = 1
+        delta_i0 = delta_i0.at[self.fourier_order].set(1)
 
-        for wl in self.wls:
+        for i, wl in enumerate(self.wls):
             k0 = 2 * np.pi / wl
 
             E_conv_all = self.permittivity_mapping(wl)
@@ -154,8 +156,10 @@ class LalanneBase:
             else:
                 raise ValueError
 
-            self.spectrum_r.append(DEri.sum())
-            self.spectrum_t.append(DEti.sum())
+            # self.spectrum_r[i] = DEri.sum()
+            # self.spectrum_t[i] = DEti.sum()
+            self.spectrum_r = self.spectrum_r.at[i].set(DEri.sum())
+            self.spectrum_t = self.spectrum_t.at[i].set(DEti.sum())
 
         return self.spectrum_r, self.spectrum_t
 
