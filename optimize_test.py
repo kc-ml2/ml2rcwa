@@ -25,8 +25,8 @@ if __name__ == '__main__':
     gt.lalanne_1d()
 
     def loss(x):
-
-        model = LalanneBase(grating_type, wls=anp.linspace(0.5, 2.3, 40), fourier_order=8, thickness=[x])
+        thickness, theta = x
+        model = LalanneBase(grating_type,theta=theta, wls=anp.linspace(0.5, 2.3, 40), fourier_order=8, thickness=[thickness])
 
         model.lalanne_1d()
 
@@ -36,6 +36,7 @@ if __name__ == '__main__':
 
         return gap
 
-
+    grad_loss = grad(loss)
+    print(grad_loss((1.0, 0.0)))
 
     pass

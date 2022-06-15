@@ -78,8 +78,11 @@ class LalanneBase:
             k_I_z = (k0 ** 2 * self.n_I ** 2 - kx_vector ** 2) ** 0.5
             k_II_z = (k0 ** 2 * self.n_II ** 2 - kx_vector ** 2) ** 0.5
 
-            k_I_z = k_I_z.conjugate()
-            k_II_z = k_II_z.conjugate()
+            # k_I_z = k_I_z.conjugate()
+            # k_II_z = k_II_z.conjugate()
+
+            k_I_z = anp.conjugate(k_I_z)
+            k_II_z = anp.conjugate(k_II_z)
 
             Kx = anp.diag(kx_vector / k0)
 
