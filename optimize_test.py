@@ -4,7 +4,7 @@ import jax.numpy as jnp
 
 from solver.LalanneClass import LalanneBase
 
-
+# TEST git
 class RCWAOptimizer:
 
     def __init__(self, gt, model):
