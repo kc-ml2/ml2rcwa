@@ -2,7 +2,7 @@ import numpy as np
 
 from solver.LalanneClass import LalanneBase
 
-
+# git test for adjoint
 class RCWAOptimizer:
 
     def __init__(self, gt, model):
